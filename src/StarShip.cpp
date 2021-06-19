@@ -23,6 +23,8 @@ StarShip::StarShip()
 	m_maxSpeed = 10.0f; // 10 pixels per frame
 	m_turnRate = 5.0f; // 5 degrees per frame
 	m_accelerationRate = 2.0f; // 2 pixels per frame
+
+	
 }
 
 StarShip::~StarShip()
@@ -133,6 +135,7 @@ void StarShip::m_move()
 
 	// add velocity to position
 	getTransform()->position += getRigidBody()->velocity;
+	
 }
 
 void StarShip::setMaxSpeed(const float speed)

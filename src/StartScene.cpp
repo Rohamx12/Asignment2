@@ -45,6 +45,9 @@ void StartScene::handleEvents()
 
 void StartScene::start()
 {
+	/*m_Background = new Background();
+	m_Background->getTransform()->position = glm::vec2(400.0f, 300.0f);
+	addChild(m_Background);*/
 	const SDL_Color blue = { 0, 0, 255, 255 };
 	const SDL_Color red = { 255, 0, 0, 255 };
 	const SDL_Color green = { 0, 255, 0, 255 };
@@ -60,14 +63,12 @@ void StartScene::start()
 	m_pInstructionsLabel->setParent(this);
 	addChild(m_pInstructionsLabel);
 
-	m_pInstructionsLabel = new Label("Keneth Rodriguez", "Consolas", 40, red, glm::vec2(400.0f, 150.0f));
+	m_pInstructionsLabel = new Label("Kenneth Rodriguez 101345891", "Consolas", 40, red, glm::vec2(400.0f, 150.0f));
 	m_pInstructionsLabel->setParent(this);
 	addChild(m_pInstructionsLabel);
 
-	/*m_pShip = new Ship();
-	m_pShip->getTransform()->position = glm::vec2(400.0f, 300.0f);
-	addChild(m_pShip); */
-
+	
+	
 	// Start Button
 	m_pStartButton = new Button();
 	m_pStartButton->getTransform()->position = glm::vec2(400.0f, 400.0f);

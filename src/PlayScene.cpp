@@ -8,6 +8,7 @@
 #include "Renderer.h"
 #include "Util.h"
 
+
 PlayScene::PlayScene()
 {
 	PlayScene::start();
@@ -48,12 +49,20 @@ void PlayScene::handleEvents()
 
 void PlayScene::start()
 {
+	m_Background = new Background();
+	m_Background->getTransform()->position = glm::vec2(400.0f, 300.0f);
+	addChild(m_Background);
 	// Set GUI Title
 	m_guiTitle = "Play Scene";
 
 	// Setup the Grid
 	m_buildGrid();
 	auto offset = glm::vec2(Config::TILE_SIZE * 0.5f, Config::TILE_SIZE * 0.5f);
+
+	
+	/*m_pShip = new Ship();
+	m_pShip->getTransform()->position = glm::vec2(400.0f, 300.0f);
+	addChild(m_pShip);*/
 	
 	// Add Target to Scene
 	m_pTarget = new Target();
@@ -75,6 +84,7 @@ void PlayScene::start()
 
 	m_buildMines();
 	m_spawnMines();
+	
 
 	ImGuiWindowFrame::Instance().setGUIFunction(std::bind(&PlayScene::GUI_Function, this));
 }
@@ -159,12 +169,21 @@ void PlayScene::GUI_Function()
 		m_resetGrid();
 	}
 
+	ImGui::Separator();
+
+	if (ImGui::Checkbox("Toggle Seek", &m_bToggleSeek));
+	{
+		m_pStarShip->setEnabled(m_bToggleSeek);
+		
+	}
+
 	
 	ImGui::End();
 }
 
 void PlayScene::m_buildMines()
 {
+	
 	for (int index = 0; index < m_mineNum; ++index)
 	{
 		auto mine = new Mine();
@@ -190,7 +209,7 @@ void PlayScene::m_eraseMines()
 
 void PlayScene::m_spawnMines()
 {
-	for (int index = 0; index < m_mineNum; ++index)
+	for (int index = 0; index < 5; ++index)
 	{
 		m_spawnObject(m_pMines[index]);
 		m_getTile(m_pMines[index]->getGridPosition())->setTileStatus(IMPASSABLE);
@@ -423,8 +442,14 @@ void PlayScene::m_spawnStarShip()
 {
 	m_spawnObject(m_pStarShip);
 	m_getTile(m_pStarShip->getGridPosition())->setTileStatus(START);
+	
 	std::cout << "StarShip Spawn Position : (" << m_pStarShip->getGridPosition().x << ", " << m_pStarShip->getGridPosition().y << ")" << std::endl;
 }
+
+//void PlayScene::m_spawnBackground()
+//{
+//	m_spawnObject(m_Background);
+//}
 
 void PlayScene::m_spawnTarget()
 {
@@ -432,6 +457,7 @@ void PlayScene::m_spawnTarget()
 	m_getTile(m_pTarget->getGridPosition())->setTileStatus(GOAL);
 	std::cout << "Target Spawn Position : (" << m_pTarget->getGridPosition().x << ", " << m_pTarget->getGridPosition().y << ")" << std::endl;
 }
+
 
 void PlayScene::m_setGridEnabled(const bool state)
 {
@@ -490,3 +516,4 @@ void PlayScene::m_resetGrid()
 	// reset the Goal Tile
 	m_getTile(m_pTarget->getGridPosition())->setTileStatus(GOAL);
 }
+

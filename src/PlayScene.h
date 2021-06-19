@@ -8,7 +8,8 @@
 #include "StarShip.h"
 #include "Target.h"
 #include "Tile.h"
-
+#include "Background.h"
+#include "ship.h"
 
 class PlayScene : public Scene
 {
@@ -34,9 +35,10 @@ private:
 	// Game Objects
 	Target* m_pTarget;
 	StarShip* m_pStarShip;
-
+	Background* m_Background;
+	
 	// mines
-	int m_mineNum = Config::MINE_NUM;
+	int m_mineNum = 5;
 	std::vector<Mine* > m_pMines;
 	void m_buildMines();
 	void m_eraseMines();
@@ -44,7 +46,7 @@ private:
 
 	// UI Controls
 	bool m_bToggleGrid;
-
+	bool m_bToggleSeek;
 	// Pathfinding Objects and Functions
 	
 	std::vector<Tile*> m_pGrid; // Grid of Tile pointers
@@ -60,6 +62,8 @@ private:
 	int m_spawnObject(NavigationObject* object);
 	void m_spawnStarShip();
 	void m_spawnTarget();
+	void m_spawnBackground();
+	Ship* m_pShip{};
 	
 	
 	void m_setGridEnabled(bool state);

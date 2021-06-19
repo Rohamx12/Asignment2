@@ -22,8 +22,8 @@ Ship::Ship() : m_maxSpeed(10.0f)
 	setCurrentDirection(glm::vec2(1.0f, 0.0f)); // facing right
 	m_turnRate = 5.0f; // 5 degrees per frame
 
-	setLOSDistance(400.0f); // 5 ppf x 80 feet
-	setLOSColour(glm::vec4(1, 0, 0, 1));
+	//setLOSDistance(400.0f); // 5 ppf x 80 feet
+	//setLOSColour(glm::vec4(1, 0, 0, 1));
 }
 
 
