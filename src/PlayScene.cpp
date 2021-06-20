@@ -7,14 +7,17 @@
 #include "imgui_sdl.h"
 #include "Renderer.h"
 #include "Util.h"
+#include "CollisionManager.h"
 
 
 PlayScene::PlayScene()
 {
 	PlayScene::start();
 	SoundManager::Instance().load("../Assets/audio/backmusic.mp3", "backmusic", SOUND_SFX);
-	SoundManager::Instance().playSound("backmusic", 0);
+	SoundManager::Instance().playSound("backmusic", 10);
 	m_guiTitle = "Start Scene";
+
+	
 }
 
 PlayScene::~PlayScene()
@@ -34,6 +37,14 @@ void PlayScene::draw()
 
 void PlayScene::update()
 {
+	
+	if (CollisionManager::AABBCheck(m_pStarShip, m_pTarget))
+	{
+		SoundManager::Instance().load("../Assets/audio/yay.ogg", "yay", SOUND_SFX);
+
+	}
+
+	
 	updateDisplayList();
 }
 
@@ -93,29 +104,37 @@ void PlayScene::start()
 	m_buildMines();
 	m_spawnMines();
 
-	/*if (EventManager::Instance().isKeyDown(SDL_SCANCODE_T))
+	/*if (EventManager::Instance().isKeyDown(SDL_SCANCODE_W))
 	{
-		LookWhereIamGoing();
+		static int start_position[2] = { m_pStarShip->getGridPosition().x, m_pStarShip->getGridPosition().y };
+		
+		if (start_position[1] > Config::ROW_NUM - 1)
+		{
+			start_position[1] = Config::ROW_NUM - 1;
+		}
+		m_getTile(m_pStarShip->getGridPosition())->setTileStatus(UNVISITED);
+		m_pStarShip->getTransform()->position = m_getTile(start_position[0] , start_position[1])->getTransform()->position + offset;
+		m_pStarShip->setGridPosition(start_position[0], start_position[1] );
+		m_getTile(m_pStarShip->getGridPosition())->setTileStatus(START);
 	}*/
-	//if (EventManager::Instance().isKeyDown(SDL_SCANCODE_W))
-	//{
-	//	/*m_pStarShip->setDesiredVelocity(m_pTarget->getTransform()->position);
-	//	m_pStarShip->getRigidBody()->velocity = m_pStarShip->getDesiredVelocity();*/
-	//	m_pStarShip->setDesiredVelocity(glm::vec2(180.0f, 100.0f));
-	//	m_pStarShip->getRigidBody()->velocity = m_pStarShip->getDesiredVelocity();
-	//	m_pStarShip->getTransform()->position += m_pTarget->getRigidBody()->velocity;
-	//	/*m_pStarShip->getTransform()->position += glm::vec2(100.0f, 200.0f);*/
+	/*static int start_position[2] = { m_pStarShip->getGridPosition().x, m_pStarShip->getGridPosition().y };
+	
+	
+		if (EventManager::Instance().isKeyDown(SDL_SCANCODE_W))
+		{
+			(("Start Position", start_position + 10, 10, Config::COL_NUM - 10));
 
-	//	static int start_position[2] = { m_pStarShip->getGridPosition().x, m_pStarShip->getGridPosition().y };
-	//	m_getTile(m_pStarShip->getGridPosition())->setTileStatus(UNVISITED);
-	//	m_pStarShip->getTransform()->position = m_getTile(start_position[0], start_position[1])->getTransform()->position + offset;
-	//	m_pStarShip->setGridPosition(start_position[0], start_position[1]);
-	//	m_getTile(m_pStarShip->getGridPosition())->setTileStatus(START);
-
-	//	m_pStarShip->setMaxSpeed(3.0f);
-
-	//}
-
+			if (start_position[1] > Config::ROW_NUM - 1)
+			{
+				start_position[1] = Config::ROW_NUM - 1;
+			}
+			m_getTile(m_pStarShip->getGridPosition())->setTileStatus(UNVISITED);
+			m_pStarShip->getTransform()->position + m_getTile(start_position[0], start_position[1])->getTransform()->position + offset;
+			m_pStarShip->setGridPosition(start_position[0], start_position[1]);
+			m_getTile(m_pStarShip->getGridPosition())->setTileStatus(START);
+		}*/
+	
+	
 	ImGuiWindowFrame::Instance().setGUIFunction(std::bind(&PlayScene::GUI_Function, this));
 }
 
@@ -146,31 +165,48 @@ void PlayScene::GUI_Function()
 	if (ImGui::Checkbox("Spawn StarShip", &m_bToggleSeek));
 	{
 		m_pStarShip->setEnabled(m_bToggleSeek);
-
-
-
+		/*m_moveShipAlongPath();*/
 	}
 	
 	ImGui::Separator();
-	static int start_position[2] = { m_pStarShip->getGridPosition().x, m_pStarShip->getGridPosition().y };
-	if(ImGui::SliderInt2("Start Position", start_position, 0, Config::COL_NUM - 1))
-	{
-		if(start_position[1] > Config::ROW_NUM - 1)
+	//static int start_position[2] = { m_pStarShip->getGridPosition().x, m_pStarShip->getGridPosition().y };
+	//if(ImGui::SliderInt2("Start Position", start_position, 0, Config::COL_NUM - 1))
+	//{
+	//	if(start_position[1] > Config::ROW_NUM - 1)
+	//	{
+	//		start_position[1] = Config::ROW_NUM - 1;
+	//	}
+	//	/*if (EventManager::Instance().isKeyDown(SDL_SCANCODE_T))*/
+	//
+	//		m_getTile(m_pStarShip->getGridPosition())->setTileStatus(UNVISITED);
+	//		m_pStarShip->getTransform()->position = m_getTile(start_position[0], start_position[1])->getTransform()->position + offset;
+	//		m_pStarShip->setGridPosition(start_position[0], start_position[1]);
+	//		m_getTile(m_pStarShip->getGridPosition())->setTileStatus(START);
+	//	
+
+	//	/*m_resetGrid();*/
+
+	//	/*m_spawnMines();*/
+	//}
+	
+	
+		static int start_position[2] = { m_pStarShip->getGridPosition().x, m_pStarShip->getGridPosition().y };
+		if (ImGui::SliderInt2("Start Position", start_position, 0, Config::COL_NUM - 1))
 		{
-			start_position[1] = Config::ROW_NUM - 1;
+			if (EventManager::Instance().isKeyDown(SDL_SCANCODE_W))
+			{
+				(("Start Position", start_position, 0, Config::COL_NUM - 1));
+
+				if (start_position[1] > Config::ROW_NUM - 1)
+				{
+					start_position[1] = Config::ROW_NUM - 1;
+				}
+				m_getTile(m_pStarShip->getGridPosition())->setTileStatus(UNVISITED);
+				m_pStarShip->getTransform()->position = m_getTile(start_position[0], start_position[1])->getTransform()->position + offset;
+				m_pStarShip->setGridPosition(start_position[0], start_position[1]);
+				m_getTile(m_pStarShip->getGridPosition())->setTileStatus(START);
+			}
 		}
-		/*if (EventManager::Instance().isKeyDown(SDL_SCANCODE_T))*/
-		
-			m_getTile(m_pStarShip->getGridPosition())->setTileStatus(UNVISITED);
-			m_pStarShip->getTransform()->position = m_getTile(start_position[0], start_position[1])->getTransform()->position + offset;
-			m_pStarShip->setGridPosition(start_position[0], start_position[1]);
-			m_getTile(m_pStarShip->getGridPosition())->setTileStatus(START);
-		
-
-		/*m_resetGrid();*/
-
-		/*m_spawnMines();*/
-	}
 
 	ImGui::Separator();
 	
@@ -451,6 +487,13 @@ void PlayScene::m_displayPathList()
 	std::cout << "Path Length: " << m_pPathList.size() << std::endl;
 	std::cout << "--------------------------------------------------\n" << std::endl;
 }
+
+//void PlayScene::m_moveShipAlongPath()
+//{
+//	
+//	m_pStarShip->getGridPosition() *= m_pStarShip->getTransform() + 10;
+//		
+//}
 
 int PlayScene::m_spawnObject(NavigationObject* object)
 {

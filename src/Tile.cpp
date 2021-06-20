@@ -4,6 +4,7 @@
 
 #include <sstream>
 #include <iomanip>
+#include "PlayScene.h"
 
 Tile::Tile() : m_cost(0.0f)
 {
@@ -69,6 +70,8 @@ void Tile::setTileStatus(const TileStatus status)
 		m_statusLabel->setText("--");
 		break;
 	case OPEN:
+		
+
 		m_statusLabel->setText("O");
 		break;
 	case CLOSED:
@@ -81,6 +84,7 @@ void Tile::setTileStatus(const TileStatus status)
 		m_statusLabel->setText("G");
 		break;
 	case START:
+		
 		m_statusLabel->setText("S");
 		break;
 	}

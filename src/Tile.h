@@ -41,6 +41,8 @@ private:
 	Label* m_costLabel;
 	Label* m_statusLabel;
 
+	
+
 	Tile* m_neighbours[NUM_OF_NEIGHBOUR_TILES];
 };
 

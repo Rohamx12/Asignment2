@@ -9,6 +9,7 @@
 #include "Target.h"
 #include "Tile.h"
 #include "Background.h"
+#include "CollisionManager.h"
 #include "ship.h"
 
 class PlayScene : public Scene
@@ -23,7 +24,8 @@ public:
 	virtual void clean() override;
 	virtual void handleEvents() override;
 	virtual void start() override;
-	void LookWhereIamGoing();
+	
+	
 	//void moveStarShip() const;
 private:
 	// IMGUI Function
@@ -59,7 +61,9 @@ private:
 	//TODO:
 	void m_findShortestPath();
 	void m_displayPathList();
-	// void m_moveShipAlongPath();
+	
+	 void m_moveShipAlongPath();
+	
 	int m_spawnObject(NavigationObject* object);
 	void m_spawnStarShip();
 	void m_spawnTarget();

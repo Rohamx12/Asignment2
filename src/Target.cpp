@@ -17,7 +17,7 @@ Target::Target()
 
 	setType(TARGET);
 
-	SoundManager::Instance().load("../Assets/audio/yay.ogg", "yay", SOUND_SFX);
+	SoundManager::Instance().load("../Assets/audio/yay.wav", "yay", SOUND_SFX);
 }
 
 Target::~Target()
