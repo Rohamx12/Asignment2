@@ -23,13 +23,13 @@ public:
 	virtual void clean() override;
 	virtual void handleEvents() override;
 	virtual void start() override;
-
+	void LookWhereIamGoing();
 	//void moveStarShip() const;
 private:
 	// IMGUI Function
 	void GUI_Function();
 	std::string m_guiTitle;
-	
+	Label* m_pStartLabe2{};
 	glm::vec2 m_mousePosition;
 
 	// Game Objects
@@ -43,7 +43,8 @@ private:
 	void m_buildMines();
 	void m_eraseMines();
 	void m_spawnMines();
-
+	
+	
 	// UI Controls
 	bool m_bToggleGrid;
 	bool m_bToggleSeek;
@@ -73,6 +74,8 @@ private:
 	Tile* m_getTile(int col, int row);
 	Tile* m_getTile(glm::vec2 grid_position);
 	void m_resetGrid();
+
+	void ob() const;
 
 	// heuristic
 	Heuristic m_currentHeuristic;

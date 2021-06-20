@@ -24,6 +24,11 @@ void PlayScene::draw()
 {
 	drawDisplayList();
 	SDL_SetRenderDrawColor(Renderer::Instance().getRenderer(), 255, 255, 255, 255);
+	const SDL_Color white = { 255, 255, 255, 255 };
+	m_pStartLabe2 = new Label("Press (`) to start the IMGUI window", "Consolas", 20, white, glm::vec2(400.0f, 100.0f));
+	m_pStartLabe2->setParent(this);
+	addChild(m_pStartLabe2);
+	
 }
 
 
@@ -52,6 +57,7 @@ void PlayScene::start()
 	m_Background = new Background();
 	m_Background->getTransform()->position = glm::vec2(400.0f, 300.0f);
 	addChild(m_Background);
+	
 	// Set GUI Title
 	m_guiTitle = "Play Scene";
 
@@ -74,9 +80,11 @@ void PlayScene::start()
 
 	// Add StarShip to Scene
 	m_pStarShip = new StarShip();
+	
 	//m_pStarShip->getTransform()->position = m_getTile(1, 3)->getTransform()->position + offset; // position in world space matches grid space
 	//m_pStarShip->setGridPosition(1, 3);
 	//m_getTile(1, 3)->setTileStatus(START);
+	
 	m_spawnStarShip();
 	addChild(m_pStarShip);
 
@@ -84,7 +92,29 @@ void PlayScene::start()
 
 	m_buildMines();
 	m_spawnMines();
-	
+
+	/*if (EventManager::Instance().isKeyDown(SDL_SCANCODE_T))
+	{
+		LookWhereIamGoing();
+	}*/
+	//if (EventManager::Instance().isKeyDown(SDL_SCANCODE_W))
+	//{
+	//	/*m_pStarShip->setDesiredVelocity(m_pTarget->getTransform()->position);
+	//	m_pStarShip->getRigidBody()->velocity = m_pStarShip->getDesiredVelocity();*/
+	//	m_pStarShip->setDesiredVelocity(glm::vec2(180.0f, 100.0f));
+	//	m_pStarShip->getRigidBody()->velocity = m_pStarShip->getDesiredVelocity();
+	//	m_pStarShip->getTransform()->position += m_pTarget->getRigidBody()->velocity;
+	//	/*m_pStarShip->getTransform()->position += glm::vec2(100.0f, 200.0f);*/
+
+	//	static int start_position[2] = { m_pStarShip->getGridPosition().x, m_pStarShip->getGridPosition().y };
+	//	m_getTile(m_pStarShip->getGridPosition())->setTileStatus(UNVISITED);
+	//	m_pStarShip->getTransform()->position = m_getTile(start_position[0], start_position[1])->getTransform()->position + offset;
+	//	m_pStarShip->setGridPosition(start_position[0], start_position[1]);
+	//	m_getTile(m_pStarShip->getGridPosition())->setTileStatus(START);
+
+	//	m_pStarShip->setMaxSpeed(3.0f);
+
+	//}
 
 	ImGuiWindowFrame::Instance().setGUIFunction(std::bind(&PlayScene::GUI_Function, this));
 }
@@ -113,6 +143,15 @@ void PlayScene::GUI_Function()
 
 	ImGui::Separator();
 
+	if (ImGui::Checkbox("Spawn StarShip", &m_bToggleSeek));
+	{
+		m_pStarShip->setEnabled(m_bToggleSeek);
+
+
+
+	}
+	
+	ImGui::Separator();
 	static int start_position[2] = { m_pStarShip->getGridPosition().x, m_pStarShip->getGridPosition().y };
 	if(ImGui::SliderInt2("Start Position", start_position, 0, Config::COL_NUM - 1))
 	{
@@ -120,15 +159,17 @@ void PlayScene::GUI_Function()
 		{
 			start_position[1] = Config::ROW_NUM - 1;
 		}
+		/*if (EventManager::Instance().isKeyDown(SDL_SCANCODE_T))*/
+		
+			m_getTile(m_pStarShip->getGridPosition())->setTileStatus(UNVISITED);
+			m_pStarShip->getTransform()->position = m_getTile(start_position[0], start_position[1])->getTransform()->position + offset;
+			m_pStarShip->setGridPosition(start_position[0], start_position[1]);
+			m_getTile(m_pStarShip->getGridPosition())->setTileStatus(START);
+		
 
-		m_getTile(m_pStarShip->getGridPosition())->setTileStatus(UNVISITED);
-		m_pStarShip->getTransform()->position = m_getTile(start_position[0], start_position[1])->getTransform()->position + offset;
-		m_pStarShip->setGridPosition(start_position[0], start_position[1]);
-		m_getTile(m_pStarShip->getGridPosition())->setTileStatus(START);
+		/*m_resetGrid();*/
 
-		m_resetGrid();
-
-		m_spawnMines();
+		/*m_spawnMines();*/
 	}
 
 	ImGui::Separator();
@@ -158,6 +199,7 @@ void PlayScene::GUI_Function()
 	if (ImGui::Button("Find Shortest Path"))
 	{
 		m_findShortestPath();
+		
 	}
 
 	
@@ -169,13 +211,9 @@ void PlayScene::GUI_Function()
 		m_resetGrid();
 	}
 
-	ImGui::Separator();
+	
 
-	if (ImGui::Checkbox("Toggle Seek", &m_bToggleSeek));
-	{
-		m_pStarShip->setEnabled(m_bToggleSeek);
-		
-	}
+	
 
 	
 	ImGui::End();
@@ -324,7 +362,7 @@ void PlayScene::m_findShortestPath()
 		auto start_tile = m_getTile(m_pStarShip->getGridPosition());
 		start_tile->setTileStatus(OPEN);
 		m_pOpenList.push_back(start_tile);
-
+		
 		bool goal_found = false;
 
 		// Step 2 - Loop until the OpenList is empty or the Goal is found
@@ -350,14 +388,17 @@ void PlayScene::m_findShortestPath()
 			{
 				if(neighbour != nullptr)
 				{
+					
 					// if the neighbour we are exploring is not the goal
 					if(neighbour->getTileStatus() != GOAL)
 					{
 						if(neighbour->getTileCost() < min)
 						{
+							
 							min = neighbour->getTileCost();
 							min_tile = neighbour;
 							min_tile_index = count;
+							
 						}
 						count++;
 					}

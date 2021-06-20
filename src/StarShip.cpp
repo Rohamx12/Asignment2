@@ -80,7 +80,7 @@ void StarShip::setDesiredVelocity(const glm::vec2 target_position)
 	getRigidBody()->velocity = m_desiredVelocity - getRigidBody()->velocity;
 	//std::cout << "Desired Velocity: (" << m_desiredVelocity.x << ", " << m_desiredVelocity.y << ")" << std::endl;
 }
-
+//
 void StarShip::LookWhereIamGoing(glm::vec2 target_direction)
 {
 	const auto target_rotation = Util::signedAngle(getCurrentDirection(), target_direction);
@@ -112,7 +112,7 @@ void StarShip::Seek()
 
 	// seek with LookWhereIamGoing
 	LookWhereIamGoing(target_direction);
-
+	
 	// seek without LookWhereIamGoing
 	//setCurrentDirection(target_direction); 
 }
