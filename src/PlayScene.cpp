@@ -10,14 +10,16 @@
 #include "CollisionManager.h"
 
 
+
+
 PlayScene::PlayScene()
 {
 	PlayScene::start();
 	SoundManager::Instance().load("../Assets/audio/backmusic.mp3", "backmusic", SOUND_SFX);
+	
 	SoundManager::Instance().playSound("backmusic", 10);
 	m_guiTitle = "Start Scene";
 
-	
 }
 
 PlayScene::~PlayScene()
@@ -28,21 +30,35 @@ void PlayScene::draw()
 	drawDisplayList();
 	SDL_SetRenderDrawColor(Renderer::Instance().getRenderer(), 255, 255, 255, 255);
 	const SDL_Color white = { 255, 255, 255, 255 };
-	m_pStartLabe2 = new Label("Press (`) to start the IMGUI window", "Consolas", 20, white, glm::vec2(400.0f, 100.0f));
+	m_pStartLabe2 = new Label("Press (`) to start Debug mode", "Consolas", 20, white, glm::vec2(400.0f, 150.0f));
+	m_pStartLabe2->setParent(this);
+	addChild(m_pStartLabe2);
+	m_pStartLabe2 = new Label("Press (F) to calculate the path", "Consolas", 20, white, glm::vec2(400.0f, 100.0f));
+	m_pStartLabe2->setParent(this);
+	addChild(m_pStartLabe2);
+	m_pStartLabe2 = new Label("HOLD (H) to move along the path", "Consolas", 20, white, glm::vec2(400.0f, 125.0f));
 	m_pStartLabe2->setParent(this);
 	addChild(m_pStartLabe2);
 	
 }
 
-
+bool walk = false;
 void PlayScene::update()
 {
 	
 	if (CollisionManager::AABBCheck(m_pStarShip, m_pTarget))
 	{
-		SoundManager::Instance().load("../Assets/audio/yay.ogg", "yay", SOUND_SFX);
+		SoundManager::Instance().load("../Assets/audio/yay.wav", "yay", SOUND_SFX);
+		m_resetGrid();
 
+		
 	}
+	
+	if (walk == true)
+	{
+		SoundManager::Instance().load("../Assets/audio/walk.mp3", "walk", SOUND_SFX);
+	}
+	
 
 	
 	updateDisplayList();
@@ -60,6 +76,14 @@ void PlayScene::handleEvents()
 	if (EventManager::Instance().isKeyDown(SDL_SCANCODE_ESCAPE))
 	{
 		TheGame::Instance().quit();
+	}
+	if (EventManager::Instance().isKeyDown(SDL_SCANCODE_F))
+	{
+		m_findShortestPath();
+	}
+	if (EventManager::Instance().isKeyDown(SDL_SCANCODE_H))
+	{
+		m_moveShip();
 	}
 }
 
@@ -133,10 +157,12 @@ void PlayScene::start()
 			m_pStarShip->setGridPosition(start_position[0], start_position[1]);
 			m_getTile(m_pStarShip->getGridPosition())->setTileStatus(START);
 		}*/
-	
+
 	
 	ImGuiWindowFrame::Instance().setGUIFunction(std::bind(&PlayScene::GUI_Function, this));
 }
+
+
 
 void PlayScene::GUI_Function()
 {
@@ -152,7 +178,7 @@ void PlayScene::GUI_Function()
 	// See examples by uncommenting the following - also look at imgui_demo.cpp in the IMGUI filter
 	//ImGui::ShowDemoWindow();
 	
-	ImGui::Begin("GAME3001 - M2021 - Lab 6", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_MenuBar);
+	ImGui::Begin("GAME3001 - M2021 - Assignment2 - Roham - Kenneth", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_MenuBar);
 
 	if(ImGui::Checkbox("Toggle Grid", &m_bToggleGrid))
 	{
@@ -160,53 +186,47 @@ void PlayScene::GUI_Function()
 		m_setGridEnabled(m_bToggleGrid);
 	}
 
+	
+	
 	ImGui::Separator();
-
-	if (ImGui::Checkbox("Spawn StarShip", &m_bToggleSeek));
+	static int start_position[2] = { m_pStarShip->getGridPosition().x, m_pStarShip->getGridPosition().y };
+	if(ImGui::SliderInt2("Start Position", start_position, 0, Config::COL_NUM - 1))
 	{
-		m_pStarShip->setEnabled(m_bToggleSeek);
-		/*m_moveShipAlongPath();*/
+		if(start_position[1] > Config::ROW_NUM - 1)
+		{
+			start_position[1] = Config::ROW_NUM - 1;
+		}
+		/*if (EventManager::Instance().isKeyDown(SDL_SCANCODE_T))*/
+	
+			m_getTile(m_pStarShip->getGridPosition())->setTileStatus(UNVISITED);
+			m_pStarShip->getTransform()->position = m_getTile(start_position[0], start_position[1])->getTransform()->position + offset;
+			m_pStarShip->setGridPosition(start_position[0], start_position[1]);
+			m_getTile(m_pStarShip->getGridPosition())->setTileStatus(START);
+		
+
+		m_resetGrid();
+
+		/*m_spawnMines();*/
 	}
 	
-	ImGui::Separator();
-	//static int start_position[2] = { m_pStarShip->getGridPosition().x, m_pStarShip->getGridPosition().y };
-	//if(ImGui::SliderInt2("Start Position", start_position, 0, Config::COL_NUM - 1))
-	//{
-	//	if(start_position[1] > Config::ROW_NUM - 1)
-	//	{
-	//		start_position[1] = Config::ROW_NUM - 1;
-	//	}
-	//	/*if (EventManager::Instance().isKeyDown(SDL_SCANCODE_T))*/
-	//
-	//		m_getTile(m_pStarShip->getGridPosition())->setTileStatus(UNVISITED);
-	//		m_pStarShip->getTransform()->position = m_getTile(start_position[0], start_position[1])->getTransform()->position + offset;
-	//		m_pStarShip->setGridPosition(start_position[0], start_position[1]);
-	//		m_getTile(m_pStarShip->getGridPosition())->setTileStatus(START);
-	//	
-
-	//	/*m_resetGrid();*/
-
-	//	/*m_spawnMines();*/
-	//}
 	
-	
-		static int start_position[2] = { m_pStarShip->getGridPosition().x, m_pStarShip->getGridPosition().y };
-		if (ImGui::SliderInt2("Start Position", start_position, 0, Config::COL_NUM - 1))
-		{
-			if (EventManager::Instance().isKeyDown(SDL_SCANCODE_W))
-			{
-				(("Start Position", start_position, 0, Config::COL_NUM - 1));
+		//static int start_position[2] = { m_pStarShip->getGridPosition().x, m_pStarShip->getGridPosition().y };
+		//if (ImGui::SliderInt2("Start Position", start_position, 0, Config::COL_NUM - 1))
+		//{
+		//	/*if (EventManager::Instance().isKeyDown(SDL_SCANCODE_W))
+		//	{*/
+		//		(("Start Position", start_position, 0, Config::COL_NUM - 1));
 
-				if (start_position[1] > Config::ROW_NUM - 1)
-				{
-					start_position[1] = Config::ROW_NUM - 1;
-				}
-				m_getTile(m_pStarShip->getGridPosition())->setTileStatus(UNVISITED);
-				m_pStarShip->getTransform()->position = m_getTile(start_position[0], start_position[1])->getTransform()->position + offset;
-				m_pStarShip->setGridPosition(start_position[0], start_position[1]);
-				m_getTile(m_pStarShip->getGridPosition())->setTileStatus(START);
-			}
-		}
+		//		if (start_position[1] > Config::ROW_NUM - 1)
+		//		{
+		//			start_position[1] = Config::ROW_NUM - 1;
+		//		}
+		//		m_getTile(m_pStarShip->getGridPosition())->setTileStatus(UNVISITED);
+		//		m_pStarShip->getTransform()->position = m_getTile(start_position[0], start_position[1])->getTransform()->position + offset;
+		//		m_pStarShip->setGridPosition(start_position[0], start_position[1]);
+		//		m_getTile(m_pStarShip->getGridPosition())->setTileStatus(START);
+		//	//}
+		//}
 
 	ImGui::Separator();
 	
@@ -245,9 +265,21 @@ void PlayScene::GUI_Function()
 	if (ImGui::Button("Reset"))
 	{
 		m_resetGrid();
-	}
 
-	
+		m_spawnMines();
+
+		m_spawnStarShip();
+
+		m_spawnTarget();
+	}
+	 
+	/*ImGui::Separator();
+
+	if (ImGui::Button("Move along the path"))
+	{
+		m_pShip->getTransform()->position = m_getTile(m_pPathList[moveCounter]->getGridPosition())->getTransform()->position + offset;
+		m_pShip->setGridPosition(m_pPathList[moveCounter]->getGridPosition().x, m_pPathList[moveCounter]->getGridPosition().y);
+	}*/
 
 	
 
@@ -487,12 +519,52 @@ void PlayScene::m_displayPathList()
 	std::cout << "Path Length: " << m_pPathList.size() << std::endl;
 	std::cout << "--------------------------------------------------\n" << std::endl;
 }
-
+int c = 0;
 //void PlayScene::m_moveShipAlongPath()
 //{
+//	auto offset = glm::vec2(Config::TILE_SIZE * 0.5f, Config::TILE_SIZE * 0.5f);
+//	static int start_position[2] = { m_pStarShip->getGridPosition().x, m_pStarShip->getGridPosition().y };
+//	(("Start Position", start_position, 0, Config::COL_NUM - 1));
 //	
-//	m_pStarShip->getGridPosition() *= m_pStarShip->getTransform() + 10;
+//	if (EventManager::Instance().isKeyDown(SDL_SCANCODE_W))
+//	{
 //		
+//		
+//		auto offset = glm::vec2(Config::TILE_SIZE * 0.10f + c, Config::TILE_SIZE * 0.0f + c);
+//		c++;
+//		if (start_position[1] > Config::ROW_NUM - 1)
+//		{
+//			start_position[1] = Config::ROW_NUM - 1;
+//		}
+//		m_getTile(m_pStarShip->getGridPosition())->setTileStatus(UNVISITED);
+//		m_pStarShip->getTransform()->position = m_getTile(start_position[0], start_position[1])->getTransform()->position + offset;
+//		m_pStarShip->setGridPosition(start_position[0], start_position[1]);
+//		m_getTile(m_pStarShip->getGridPosition())->setTileStatus(START);
+//	}
+//
+//	
+//	//for (auto neighbour : neighbour_list)
+//	//{
+//	//	if (neighbour->getTileStatus() == OPEN)
+//	//	{
+//	//		//m_pStarShip->setGridPosition();
+//	//		m_pStarShip->getTransform()->position = glm::vec2(neighbour->getGridPosition().x, neighbour->getGridPosition().y);
+//	//	}
+//	//}
+//}
+//
+//
+//void PlayScene::m_moveShipAlongPath()
+//{
+//	m_findShortestPath();
+//	for (auto neighbour : neighbour_list)
+//	{
+//		if (neighbour->getTileStatus() == OPEN)
+//		{
+//			/*m_pStarShip->setGridPosition();*/
+//			m_pStarShip->getTransform()->position = glm::vec2(neighbour->getGridPosition().x * 40, neighbour->getGridPosition().y * 40);
+//		}
+//	}
 //}
 
 int PlayScene::m_spawnObject(NavigationObject* object)
@@ -601,3 +673,47 @@ void PlayScene::m_resetGrid()
 	m_getTile(m_pTarget->getGridPosition())->setTileStatus(GOAL);
 }
 
+//void PlayScene::m_moveShip()
+//{
+//	auto offset = glm::vec2(Config::TILE_SIZE * 0.5f, Config::TILE_SIZE * 0.5f);
+//	moveCounter = 0;
+//	
+//	if (moveCounter < m_pPathList.size())
+//	{
+//
+//		m_pShip->getTransform()->position = m_getTile(m_pPathList[moveCounter]->getGridPosition())->getTransform()->position + offset;
+//		m_pShip->setGridPosition(m_pPathList[moveCounter]->getGridPosition().x, m_pPathList[moveCounter]->getGridPosition().y);
+//		if (Game::Instance().getFrames() % 20 == 0)
+//		{
+//			moveCounter++;
+//		}
+//	}
+//	else
+//	{
+//		m_shipIsMoving = false;
+//	}
+//}
+
+void PlayScene::m_moveShip()
+{
+	static int start_position[2] = { m_pStarShip->getGridPosition().x, m_pStarShip->getGridPosition().y };
+	auto offset = glm::vec2(Config::TILE_SIZE * 0.5f, Config::TILE_SIZE * 0.5f);
+	if (moveCounter < m_pPathList.size())
+	{
+		/*m_pStarShip->getTransform()->position = m_getTile(start_position[0], start_position[1])->getTransform()->position + offset;
+		m_pStarShip->setGridPosition(start_position[0], start_position[1]);*/
+		m_getTile(m_pStarShip->getGridPosition())->setTileStatus(START);
+		m_pStarShip->getTransform()->position = m_getTile(m_pPathList[moveCounter]->getGridPosition())->getTransform()->position + offset;
+		m_pStarShip->setGridPosition(m_pPathList[moveCounter]->getGridPosition().x, m_pPathList[moveCounter]->getGridPosition().y);
+
+		
+		
+		
+		if (Game::Instance().getFrames() % 17 == 0)
+		{
+			walk = true;
+			moveCounter++;
+		}
+	}
+	
+}

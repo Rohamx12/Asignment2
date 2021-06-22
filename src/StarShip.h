@@ -28,6 +28,8 @@ public:
 	void setDesiredVelocity(glm::vec2 target_position);
 	void setAccelerationRate(float rate);
 
+	int moveCounter;
+	
 	// public member functions
 	void Seek();
 	void LookWhereIamGoing(glm::vec2 target_direction);
@@ -41,6 +43,7 @@ private:
 
 	// private member functions
 	void m_move();
+	void m_moveShip();
 };
 
 #endif /* defined (__STAR_SHIP__) */

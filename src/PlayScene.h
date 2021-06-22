@@ -25,8 +25,8 @@ public:
 	virtual void handleEvents() override;
 	virtual void start() override;
 	
+	void m_moveShip();
 	
-	//void moveStarShip() const;
 private:
 	// IMGUI Function
 	void GUI_Function();
@@ -40,16 +40,18 @@ private:
 	Background* m_Background;
 	
 	// mines
-	int m_mineNum = 5;
+	int m_mineNum = 8;
 	std::vector<Mine* > m_pMines;
 	void m_buildMines();
 	void m_eraseMines();
 	void m_spawnMines();
+
 	
+	void moveStarShip() const;
 	
 	// UI Controls
 	bool m_bToggleGrid;
-	bool m_bToggleSeek;
+	
 	// Pathfinding Objects and Functions
 	
 	std::vector<Tile*> m_pGrid; // Grid of Tile pointers
@@ -64,12 +66,16 @@ private:
 	
 	 void m_moveShipAlongPath();
 	
+	 Tile* min_tile; // temp Tile pointer - initialized as nullptr
+	
 	int m_spawnObject(NavigationObject* object);
 	void m_spawnStarShip();
 	void m_spawnTarget();
-	void m_spawnBackground();
-	Ship* m_pShip{};
 	
+	Ship* m_pShip{};
+	int moveCounter;
+
+	bool m_shipIsMoving;
 	
 	void m_setGridEnabled(bool state);
 	bool m_getGridEnabled() const;
@@ -79,7 +85,9 @@ private:
 	Tile* m_getTile(glm::vec2 grid_position);
 	void m_resetGrid();
 
-	void ob() const;
+	
+
+	
 
 	// heuristic
 	Heuristic m_currentHeuristic;
@@ -88,6 +96,7 @@ private:
 	 std::vector<Tile*> m_pOpenList;
 	 std::vector<Tile*> m_pClosedList;
 	 std::vector<Tile*> m_pPathList;
+	 std::vector<Tile* > neighbour_list;
 };
 
 #endif /* defined (__PLAY_SCENE__) */

@@ -43,6 +43,7 @@ void StarShip::draw()
 void StarShip::update()
 {
     /*m_move();*/
+        
 }
 
 void StarShip::clean()
@@ -137,6 +138,8 @@ void StarShip::m_move()
     getTransform()->position += getRigidBody()->velocity;
 
 }
+
+
 
 void StarShip::setMaxSpeed(const float speed)
 {
